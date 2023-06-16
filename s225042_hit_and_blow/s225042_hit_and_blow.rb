@@ -216,15 +216,22 @@ Window.loop do
         Window.draw_font(hit_and_blow_x, hit_and_blow_y, "hit&blow", hit_and_blow_font)
         # 「play」を表示
         Window.draw_box(how_to_play_box_x, play_y, how_to_play_box_x + how_to_play_box_width, play_y + how_to_play_box_height, [255, 255, 255])
-        Window.draw_font(play_x, play_y + 5, "Play", play_font)
+        Window.draw_font(play_x, play_y + 5, "play", play_font)
          #「end」を表示
          Window.draw_box(how_to_play_box_x, how_to_play_box_y, how_to_play_box_x + how_to_play_box_width, how_to_play_box_y + how_to_play_box_height, [255, 255, 255])
          Window.draw_font(end_x, end_y, "End", end_font)
         #「play」を赤色にする
         if (Input.mouse_x >= how_to_play_box_x) && (Input.mouse_x <= how_to_play_box_x + how_to_play_box_width) && (Input.mouse_y >=play_y) && (Input.mouse_y <= play_y + how_to_play_box_height)
-            Window.draw_font(play_x, play_y + 5, "Play", play_font,color: C_RED)
+            Window.draw_font(play_x, play_y + 5, "play", play_font,color: C_RED)
             if (Input.mouse_push?(M_LBUTTON)) || (Input.mouse_push?(M_RBUTTON))
                 screen = 1
+            end
+        end
+        #「end」を赤色にする
+        if (Input.mouse_x >= how_to_play_box_x) && (Input.mouse_x <= how_to_play_box_x + how_to_play_box_width) && (Input.mouse_y >=end_y) && (Input.mouse_y <= end_y + how_to_play_box_height)
+            Window.draw_font(end_x, end_y, "End", end_font,color: C_RED)
+            if (Input.mouse_push?(M_LBUTTON)) || (Input.mouse_push?(M_RBUTTON))
+                break
             end
         end
     end #if screen == 0のend
@@ -556,6 +563,10 @@ Window.loop do
                                     if play_1_answer_box[a] == play_2_box[b]
                                         p1_h += 1
                                     end
+                                else
+                                    if play_1_answer_box[a] == play_2_box[b]
+                                        p1_h += 1
+                                    end
                                 end
                             end
                         end
@@ -591,6 +602,10 @@ Window.loop do
                                     if play_2_answer_box[a] == play_1_box[b]
                                         p2_h += 1
                                     end
+                                else
+                                    if play_2_answer_box[a] == play_1_box[b]
+                                        p2_h += 1
+                                    end
                                 end
                             end
                         end
@@ -604,6 +619,7 @@ Window.loop do
                         fir_bac_num = 0                    
                         p2_del_num = p2_sum_del_num
                     end     #fir_bac_num == 1 の時のend とfir_bac_num == 0 の時のend 
+
                     dec_num_1 = [-1,-1,-1,-1]
                     dec_num_2 = 0
                     if blow_box.length == 1
@@ -617,9 +633,22 @@ Window.loop do
             end
         end
 
-        if p1_b_box[p1_b_box.length-1] == 3 || p2_b_box[p2_b_box.length-1] == 3
-            screen = 5
-            count = 0
+        if (p1_b_box.length > 0) && (p2_b_box.length > 0)
+            if (p1_b_box.length == p2_b_box.length)
+                if (p1_b_box[p1_b_box.length-1] == 3 && p2_b_box[p2_b_box.length-1] < 3)
+                    screen = 5
+                    count = 0
+                elsif (p1_b_box[p1_b_box.length-1] < 3 && p2_b_box[p2_b_box.length-1] == 3)
+                    screen = 5
+                    count = 0
+                elsif (p1_b_box[p1_b_box.length-1] == 3 && p2_b_box[p2_b_box.length-1] == 3)
+                    screen = 5
+                    count = 0
+                elsif (p1_b_box.length == 8) && (p2_b_box.length == 8)
+                    screen = 5
+                    count = 0
+                end
+            end
         end
     end #if screen == 3の時のend 
 
@@ -636,22 +665,25 @@ Window.loop do
         if processing_time >= 0 && processing_time < 3
             #Game selection screenに "終了" を表示を行う
             Window.draw_font(220,190,"終了",Font.new(150)) 
-        end
         #processing_timeが3秒から5秒以内の時に、勝者と敗者を表示する
-        if processing_time >= 3 && processing_time <= 10 
+        elsif processing_time >= 3 && processing_time <= 10 
             # 中央線のを表示
-            Window.draw_box_fill(339, 0, 341, 600, [255, 255, 255])
+                Window.draw_box_fill(339, 0, 341, 600, [255, 255, 255])
             #processing_timeが3秒から5秒以内の時に、Player1を表示する
                 Window.draw_font(player_1_x - 50,player_1_y,"Player1",Font.new(80))
             #processing_timeが3秒から5秒以内の時に、Payer2を表示する
                 Window.draw_font(player_2_x - 45,player_2_y,"Player2",Font.new(80))
             #processing_timeが3秒から5秒以内の時に、WINを表示する
-            if  p1_b_box[p1_b_box.length-1] == 3 
-                Window.draw_font(fir_bac_x[0] - 25,fir_bac_y,"LOSE",Font.new(70)) 
+            if  (p1_b_box[p1_b_box.length-1] == 3 && p2_b_box[p2_b_box.length-1] == 3) || (p1_b_box.length == 8) && (p2_b_box.length == 8)
+                Window.draw_font(fir_bac_x[1] - 10,fir_bac_y,"even",Font.new(70)) 
                 #processing_timeが3秒から5秒以内の時に、LOSEを表示する
-                Window.draw_font(fir_bac_x[1] - 10,fir_bac_y,"WIN",Font.new(70))   
+                Window.draw_font(fir_bac_x[0] - 25,fir_bac_y,"even",Font.new(70))   
+            elsif  p1_b_box[p1_b_box.length-1] == 3 
+                Window.draw_font(fir_bac_x[0] - 25,fir_bac_y,"WIN",Font.new(70)) 
+                #processing_timeが3秒から5秒以内の時に、LOSEを表示する
+                Window.draw_font(fir_bac_x[1] - 25,fir_bac_y,"LOSE",Font.new(70))   
             elsif p2_b_box[p2_b_box.length-1] == 3
-                Window.draw_font(fir_bac_x[1] - 10,fir_bac_y,"WIN",Font.new(70)) 
+                Window.draw_font(fir_bac_x[1] - 25,fir_bac_y,"WIN",Font.new(70)) 
                 #processing_timeが3秒から5秒以内の時に、LOSEを表示する
                 Window.draw_font(fir_bac_x[0] - 25,fir_bac_y,"LOSE",Font.new(70))   
             end
