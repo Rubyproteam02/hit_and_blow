@@ -15,11 +15,7 @@ screen = 0
     # play
         play_font = Font.new(50)
         play_x = 340 - play_font.get_width("play") / 2
-        play_y = 250
-        play_box_x = play_x - 10
-        play_box_y = play_y - 10
-        play_box_width = play_font.get_width("play") + 20
-        play_box_height = play_font.size + 20
+        play_y = 270
     # how to play
         how_to_play_font = Font.new(50)
         how_to_play_x = 340 - how_to_play_font.get_width("how to play") / 2
@@ -28,6 +24,10 @@ screen = 0
         how_to_play_box_y = how_to_play_y - 10
         how_to_play_box_width = how_to_play_font.get_width("how to play") + 20
         how_to_play_box_height = how_to_play_font.size + 20
+    # end
+        end_font = Font.new(50)
+        end_x = 340 - end_font.get_width("end") / 2
+        end_y = 370
 #「数字」の選択画面の表示
     # ---「4つの数字を決めてください(重複あり。)」を表示---#
         dec_font = Font.new(40)
@@ -154,8 +154,6 @@ screen = 0
         re_num = 0
     # cpu_box = [rand(6)+1,rand(6)+1,rand(6)+1,rand(6)+1]
 
-
-
 #ゲーム画面の四角形の縦辺を表示するための関数
 def height_block(x)
     Window.draw_box_fill(x,50,x+5, 405, [255, 255, 255])
@@ -219,14 +217,21 @@ Window.loop do
         # 「play」を表示
         Window.draw_box(how_to_play_box_x, play_y, how_to_play_box_x + how_to_play_box_width, play_y + how_to_play_box_height, [255, 255, 255])
         Window.draw_font(play_x, play_y + 5, "play", play_font)
-        #「how to play」を表示
-        Window.draw_box(how_to_play_box_x, how_to_play_box_y, how_to_play_box_x + how_to_play_box_width, how_to_play_box_y + how_to_play_box_height, [255, 255, 255])
-        Window.draw_font(how_to_play_x, how_to_play_y, "how to play", how_to_play_font)
+         #「end」を表示
+         Window.draw_box(how_to_play_box_x, how_to_play_box_y, how_to_play_box_x + how_to_play_box_width, how_to_play_box_y + how_to_play_box_height, [255, 255, 255])
+         Window.draw_font(end_x, end_y, "End", end_font)
         #「play」を赤色にする
         if (Input.mouse_x >= how_to_play_box_x) && (Input.mouse_x <= how_to_play_box_x + how_to_play_box_width) && (Input.mouse_y >=play_y) && (Input.mouse_y <= play_y + how_to_play_box_height)
             Window.draw_font(play_x, play_y + 5, "play", play_font,color: C_RED)
             if (Input.mouse_push?(M_LBUTTON)) || (Input.mouse_push?(M_RBUTTON))
                 screen = 1
+            end
+        end
+        #「end」を赤色にする
+        if (Input.mouse_x >= how_to_play_box_x) && (Input.mouse_x <= how_to_play_box_x + how_to_play_box_width) && (Input.mouse_y >=end_y) && (Input.mouse_y <= end_y + how_to_play_box_height)
+            Window.draw_font(end_x, end_y, "End", end_font,color: C_RED)
+            if (Input.mouse_push?(M_LBUTTON)) || (Input.mouse_push?(M_RBUTTON))
+                break
             end
         end
     end #if screen == 0のend
@@ -420,8 +425,8 @@ Window.loop do
 
         #「H」と「B」の表示(player1とplayer2の両方とも)
         for x in 0..1
-            Window.draw_font(h_x[x], 10, "H",Font.new(40))
-            Window.draw_font(b_x[x], 10, "B", Font.new(40))
+            Window.draw_font(h_x[x], 10, "B",Font.new(40))
+            Window.draw_font(b_x[x], 10, "H", Font.new(40))
         end
 
         #「P1」と「p2」の表示
@@ -457,7 +462,6 @@ Window.loop do
                             play_1_answer_box.delete_at(dec_num_2)
                             play_1_showbox.delete_at(p1_del_num + dec_num_2)
                             dec_num_1[dec_num_2] = -1
-                            printf("p1_del_num + dec_num_2 = %d \n",p1_del_num + dec_num_2)
                         end
                     elsif fir_bac_num == 1
                         if p2_sum_del_num > p2_del_num &&  p2_del_num <= p2_sum_del_num + 4
@@ -466,7 +470,6 @@ Window.loop do
                             play_2_answer_box.delete_at(dec_num_2)
                             play_2_showbox.delete_at(p2_del_num + dec_num_2)
                             dec_num_1[dec_num_2] = -1
-                            printf("p2_del_num + dec_num_2 = %d \n",p2_del_num + dec_num_2)
                         end
                     end 
                 end
@@ -489,27 +492,40 @@ Window.loop do
                     if (Input.mouse_push?(M_LBUTTON)) || (Input.mouse_push?(M_RBUTTON))
                         input_x = Input.mouse_x
                         dec_num_1[dec_num_2] = decide_number(input_x,cho_num_x)
-                        # printf("dec_num_1[dec_num_2] = %d\n", dec_num_1[dec_num_2])
-                        # printf("now_player_num = %d\n",now_player_num)
+
+                        if dec_num_2 == 1
+                            if dec_num_1[dec_num_2] == dec_num_1[dec_num_2-1]
+                                dec_num_1[dec_num_2] = -1
+                                next
+                            end    
+                        # 選んでいる数字とその前の数字の重複確認
+                        elsif dec_num_2 > 1
+                            for a in 0..(dec_num_2-1)
+                                if dec_num_1[dec_num_2] == dec_num_1[a]
+                                    x_4 = 1
+                                    break
+                                end    
+                            end
+                            if x_4 == 1
+                                x_4 = 0
+                                dec_num_1[dec_num_2] = -1
+                                next
+                            end
+                        end
                         if fir_bac_num == 0
                             play_1_answer_box.push(dec_num_1[dec_num_2])
                             play_1_showbox.push(dec_num_1[dec_num_2])
                             p1_sum_del_num += 1
-                            # printf("play_1_showbox = %d\n",play_1_showbox[dec_num_2])
                         elsif fir_bac_num == 1
                             play_2_answer_box.push(dec_num_1[dec_num_2])
                             play_2_showbox.push(dec_num_1[dec_num_2])
                             p2_sum_del_num += 1
-                            # printf("play_2_answer_box = %d\n",play_2_answer_box[dec_num_2])
-                            # printf("play_2_showbox = %d\n",play_2_showbox[dec_num_2])
                         end
                         dec_num_2 += 1
-                      
                     end
                 end
             end
         end
-
         #player1の数字の表示
             show_num(play_1_answer_box_x,answer_box_y,number,play_1_showbox,answer_num_font)
         #player2の数字の表示
@@ -518,8 +534,6 @@ Window.loop do
             show_H_B_num(h_x[0],b_x[0],answer_box_y,number,p1_h_box,p1_b_box,answer_num_font)
         #player2の「H」「B」の表示  
             show_H_B_num(h_x[1],b_x[1],answer_box_y,number,p2_h_box,p2_b_box,answer_num_font)
-
-        
         #「H」と「B」を計算する    
         if dec_num_1[3] >= 0 
             Window.draw_box(det_del_box_x, det_del_box_y[0] ,det_del_box_x + det_del_box_width, det_del_box_y[0] + det_del_box_height,[255, 212, 0])
@@ -530,151 +544,112 @@ Window.loop do
                         for a in 0..(play_1_answer_box.length-1)
                             if play_1_answer_box[a] == play_2_box[a]
                                 blow_box.push(a)
-                                # printf("\n")
-                                # printf("a = %d\n",a)
-                                # printf("blow_box[%d] = %d\n",p1_b,blow_box[p1_b])
-                                # printf("\n")
-                                # printf("Blow\n")
-                                # printf("play_1_answer_box[%d] = %d\n",a,play_1_answer_box[a])
-                                # printf("play_2_box[%d] = %d\n",a,play_2_box[a])
-                                # printf("\n")
                                 p1_b += 1
                             end
                         end
-
                         for a in 0..(play_1_answer_box.length-1)
                             for b in 0..(play_2_box.length-1)
                                 if blow_box.length > 0
                                     for c in blow_box
                                         if  a == c || b == c
                                             d = 1
-                                            # printf("a = %d | b = %d | c = %d\n",a,b,c)
                                             break
                                         end
                                     end
-
                                     if d == 1
                                         d = 0
                                         next
                                     end
-
-                                    # printf("a = %d | b = %d\n",a,b)
                                     if play_1_answer_box[a] == play_2_box[b]
-                                        # printf("HIT\n")
-                                        # printf("play_1_answer_box[%d] = %d\n",a,play_1_answer_box[a])
-                                        # printf("play_2_box[%d] = %d\n",b,play_2_box[b])
-                                        # printf("\n")
+                                        p1_h += 1
+                                    end
+                                else
+                                    if play_1_answer_box[a] == play_2_box[b]
                                         p1_h += 1
                                     end
                                 end
                             end
                         end
-
                         for a in 0..(play_1_answer_box.length-1)
                             play_1_answer_box.pop
                         end
-                        # printf("\n")
-                        # printf("p1_b = %d\n",p1_b)
-                        # printf("p1_h = %d\n",p1_h)
-                        # printf("\n")
                         p1_b_box.push(p1_b)
                         p1_h_box.push(p1_h)
                         p1_b = -1
                         p1_h = -1
                         fir_bac_num = 1                    
-                        dec_num_1 = [-1,-1,-1,-1]
-                        dec_num_2 = 0
                         p1_del_num = p1_sum_del_num
-                        printf("p1_b_box[%d] = %d\n",p1_b_box.length-1,p1_b_box[p1_b_box.length-1])
-                        if blow_box.length == 1
-                            blow_box.pop
-                        elsif blow_box.length > 1
-                            for a in 0..(blow_box.length-1)
-                                blow_box.pop
-                            end
-                        end
                     elsif fir_bac_num == 1                        
                         for a in 0..(play_2_answer_box.length-1)
                             if play_2_answer_box[a] == play_1_box[a]
                                 blow_box.push(a)
-                                # printf("\n")
-                                # printf("a = %d\n",a)
-                                # printf("blow_box[%d] = %d\n",p2_b,blow_box[p2_b])
-                                # printf("\n")
-                                # printf("Blow\n")
-                                # printf("play_2_answer_box[%d] = %d\n",a,play_2_answer_box[a])
-                                # printf("play_1_box[%d] = %d\n",a,play_1_box[a])
-                                # printf("\n")
                                 p2_b += 1
                             end
                         end
-
                         for a in 0..(play_2_answer_box.length-1)
                             for b in 0..(play_1_box.length-1)
                                 if blow_box.length > 0
                                     for c in blow_box
                                         if  a == c || b == c
                                             d = 1
-                                            # printf("a = %d | b = %d | c = %d\n",a,b,c)
                                             break
                                         end
                                     end
-
                                     if d == 1
                                         d = 0
                                         next
                                     end
-
-                                    printf("a = %d | b = %d\n",a,b)
                                     if play_2_answer_box[a] == play_1_box[b]
-                                        # printf("HIT\n")
-                                        # printf("play_2_answer_box[%d] = %d\n",a,play_2_answer_box[a])
-                                        # printf("play_2_box[%d] = %d\n",b,play_2_box[b])
-                                        # printf("\n")
+                                        p2_h += 1
+                                    end
+                                else
+                                    if play_2_answer_box[a] == play_1_box[b]
                                         p2_h += 1
                                     end
                                 end
                             end
                         end
-
                         for a in 0..(play_2_answer_box.length-1)
                             play_2_answer_box.pop
                         end
-                        # printf("\n")
-                        # printf("p2_b = %d\n",p2_b)
-                        # printf("p2_h = %d\n",p2_h)
-                        # printf("\n")
                         p2_b_box.push(p2_b)
                         p2_h_box.push(p2_h)
                         p2_b = -1
                         p2_h = -1
                         fir_bac_num = 0                    
-                        dec_num_1 = [-1,-1,-1,-1]
-                        dec_num_2 = 0
-                        printf("p2_b_box[%d] = %d\n",p2_b_box.length-1,p2_b_box[p2_b_box.length-1])
                         p2_del_num = p2_sum_del_num
-                        if blow_box.length == 1
-                            blow_box.pop
-                        elsif blow_box.length > 1
-                            for a in 0..(blow_box.length-1)
-                                blow_box.pop
-                            end
-                        end
                     end     #fir_bac_num == 1 の時のend とfir_bac_num == 0 の時のend 
+
+                    dec_num_1 = [-1,-1,-1,-1]
+                    dec_num_2 = 0
+                    if blow_box.length == 1
+                        blow_box.pop
+                    elsif blow_box.length > 1
+                        for a in 0..(blow_box.length-1)
+                            blow_box.pop
+                        end
+                    end
                 end
             end
         end
 
-        if p1_b_box[p1_b_box.length-1] == 3 || p2_b_box[p2_b_box.length-1] == 3
-            screen = 5
-            count = 0
+        if (p1_b_box.length > 0) && (p2_b_box.length > 0)
+            if (p1_b_box.length == p2_b_box.length)
+                if (p1_b_box[p1_b_box.length-1] == 3 && p2_b_box[p2_b_box.length-1] < 3)
+                    screen = 5
+                    count = 0
+                elsif (p1_b_box[p1_b_box.length-1] < 3 && p2_b_box[p2_b_box.length-1] == 3)
+                    screen = 5
+                    count = 0
+                elsif (p1_b_box[p1_b_box.length-1] == 3 && p2_b_box[p2_b_box.length-1] == 3)
+                    screen = 5
+                    count = 0
+                elsif (p1_b_box.length == 7) && (p2_b_box.length == 7)
+                    screen = 5
+                    count = 0
+                end
+            end
         end
-
-        if play_1_answer_box.length == 28 && play_2_answer_box.length == 28
-            screen = 6
-            count = 0
-        end
-
     end #if screen == 3の時のend 
 
     if screen == 5
@@ -690,223 +665,31 @@ Window.loop do
         if processing_time >= 0 && processing_time < 3
             #Game selection screenに "終了" を表示を行う
             Window.draw_font(220,190,"終了",Font.new(150)) 
-        end
         #processing_timeが3秒から5秒以内の時に、勝者と敗者を表示する
-        if processing_time >= 3 && processing_time <= 10 
+        elsif processing_time >= 3 && processing_time <= 10 
             # 中央線のを表示
-            Window.draw_box_fill(339, 0, 341, 600, [255, 255, 255])
+                Window.draw_box_fill(339, 0, 341, 600, [255, 255, 255])
             #processing_timeが3秒から5秒以内の時に、Player1を表示する
                 Window.draw_font(player_1_x - 50,player_1_y,"Player1",Font.new(80))
             #processing_timeが3秒から5秒以内の時に、Payer2を表示する
                 Window.draw_font(player_2_x - 45,player_2_y,"Player2",Font.new(80))
             #processing_timeが3秒から5秒以内の時に、WINを表示する
-            if  p1_b_box[p1_b_box.length-1] == 3 
-                Window.draw_font(fir_bac_x[0] - 25,fir_bac_y,"LOSE",Font.new(70)) 
+            if  (p1_b_box[p1_b_box.length-1] == 3 && p2_b_box[p2_b_box.length-1] == 3) || (p1_b_box.length == 7) && (p2_b_box.length == 7)
+                Window.draw_font(fir_bac_x[1] - 10,fir_bac_y,"even",Font.new(70)) 
                 #processing_timeが3秒から5秒以内の時に、LOSEを表示する
-                Window.draw_font(fir_bac_x[1] - 10,fir_bac_y,"WIN",Font.new(70))   
+                Window.draw_font(fir_bac_x[0] - 25,fir_bac_y,"even",Font.new(70))   
+            elsif  p1_b_box[p1_b_box.length-1] == 3 
+                Window.draw_font(fir_bac_x[0] - 25,fir_bac_y,"WIN",Font.new(70)) 
+                #processing_timeが3秒から5秒以内の時に、LOSEを表示する
+                Window.draw_font(fir_bac_x[1] - 25,fir_bac_y,"LOSE",Font.new(70))   
             elsif p2_b_box[p2_b_box.length-1] == 3
-                Window.draw_font(fir_bac_x[1] - 10,fir_bac_y,"WIN",Font.new(70)) 
+                Window.draw_font(fir_bac_x[1] - 25,fir_bac_y,"WIN",Font.new(70)) 
                 #processing_timeが3秒から5秒以内の時に、LOSEを表示する
                 Window.draw_font(fir_bac_x[0] - 25,fir_bac_y,"LOSE",Font.new(70))   
             end
             #processing_timeが5秒以上の時に、 リトライ スタート画面に戻る 止める の表示を行う               
         elsif processing_time >= 10
-            #----リトライ button----
-                #VERSUS SCREENに "リトライ" を表示を行う
-                Window.draw_font(215,125,"もう一度",Font.new(50),color:[57,57,56]) 
-                #VERSUS SCREENに "スタート画面に戻る" を表示を行う
-                Window.draw_font(165,225,"スタート画面",Font.new(50),color:[57,57,56]) 
-                Window.draw_font(220,275,"に戻る",Font.new(50),color:[57,57,56]) 
-                #VERSUS SCREENに "止める" を表示する
-                Window.draw_font(215,375,"止める",Font.new(50),color:[57,57,56])            
-            #-----クリック機能-----
-            if processing_time > 13
-                #リトライをクッリクすると再度ゲームを行う機能                    
-                if (Input.mouse_x >=165  && Input.mouse_x<=427) && (Input.mouse_y >=120  && Input.mouse_y<=180)  
-                    Window.draw_font(215,125,"もう一度",Font.new(50),color:[255,0,0]) 
-                    if (Input.mouse_push?(M_LBUTTON) || Input.mouse_push?(M_LBUTTON)) 
-                        re_num = 1
-                        #screenを5にする(再度、全ての値を初期化するために)
-                        screen = 7
-                        #countを0にする(再度時間を測るために)
-                        count = 0
-                    end
-                #スタート画面に戻るをクッリクするとスタート画面に戻る機能                      
-                elsif (Input.mouse_x >=165  && Input.mouse_x<=427) && (Input.mouse_y >=220  && Input.mouse_y<=330)  
-                    Window.draw_font(1165,225,"スタート画面",Font.new(50),color:[255,0,0]) 
-                    Window.draw_font(220,275,"に戻る",Font.new(50),color:[255,0,0]) 
-                    if (Input.mouse_push?(M_LBUTTON) || Input.mouse_push?(M_LBUTTON)) 
-                        re_num = 2
-                        #screenを6にする(再度、全ての値を初期化するために)
-                        screen = 0
-                        #countを0にする(再度時間を測るために)
-                        count = 0
-                    end
-                #やめるをクッリクするとゲームを終了する機能
-                elsif (Input.mouse_x >=165  && Input.mouse_x<=427) && (Input.mouse_y >=370  && Input.mouse_y<=430)  
-                    Window.draw_font(215,375,"止める",Font.new(50),color:[255,0,0])  
-                    if (Input.mouse_push?(M_LBUTTON) || Input.mouse_push?(M_LBUTTON)) 
-                        break
-                    end
-                end
-            end 
+            break
         end
     end     #if screen == 5のとき
-    
-    if screen == 7
-        #---時間関係---#
-        count = 0
-        start_time = 0
-        end_time = 0
-        processing_time = 0
-        #---スタート画面---#
-            # hit&blow
-                hit_and_blow_font = Font.new(100)
-                hit_and_blow_x = 340 - hit_and_blow_font.get_width("hit&blow") / 2
-                hit_and_blow_y = 70
-            # play
-                play_font = Font.new(50)
-                play_x = 340 - play_font.get_width("play") / 2
-                play_y = 250
-                play_box_x = play_x - 10
-                play_box_y = play_y - 10
-                play_box_width = play_font.get_width("play") + 20
-                play_box_height = play_font.size + 20
-            # how to play
-                how_to_play_font = Font.new(50)
-                how_to_play_x = 340 - how_to_play_font.get_width("how to play") / 2
-                how_to_play_y = 370
-                how_to_play_box_x = how_to_play_x - 10
-                how_to_play_box_y = how_to_play_y - 10
-                how_to_play_box_width = how_to_play_font.get_width("how to play") + 20
-                how_to_play_box_height = how_to_play_font.size + 20
-        #「数字」の選択画面の表示
-            # ---「4つの数字を決めてください(重複あり。)」を表示---#
-                dec_font = Font.new(40)
-            #「4つの数字を選択してください」のXとY
-                dec_x_1 = 340 - dec_font.get_width("4つの数字を選択してください") / 2
-                dec_y_1 = 20
-            #「重複なし」のXとY
-                dec_x_2 = 340 - dec_font.get_width("※重複なし") / 2
-                dec_y_2 = 80
-            #自分の選択した数字が入る箱のxとy
-                dec_box_x = [140,240,340,440,540]
-                dex_box_y = [160,260]
-            #各数字の箱のxとy数字とフォントの大きさ
-                num_box_x = [40,140,240,340,440,540]
-                num_box_y = 320
-                num_font = Font.new(60)
-                number = ["1","2","3","4","5","6","0"]
-                #選択した数字のx座標
-                dec_num_wid = [175,275,375,475]
-                now_player_num = 0
-            #各数字を代入する際に利用する
-                #変数numberのインデックスを代入する配列
-                dec_num_1 = [-1,-1,-1,-1]
-                #dec_num_1のインデックスを0 ~ 4をにするためのコード
-                dec_num_2 = 0
-            #「決定」の表示のためのコード
-                det_font = Font.new(40)
-                det_x = 170 - det_font.get_width("決定") / 2
-                det_y = 450 
-                det_box_x = det_x - 15
-                det_box_y = det_y - 15
-                det_box_width = det_font.get_width("決定") + 20
-                det_box_height = det_font.size + 30
-            #「削除」の表示のためのコード
-                del_font = Font.new(40)
-                del_x = 510 - det_font.get_width("削除") / 2
-                del_y = 450 
-                del_box_x = del_x - 15
-                del_box_y = del_y - 15
-                del_box_width = del_font.get_width("削除") + 20
-                del_box_height = del_font.size + 30
-            #先行と後攻を決める
-        #---「先攻」「後攻」画面の表示---#
-            #----「player1」の表示
-            player_font = Font.new(50)
-            player_1_x = 170 - player_font.get_width("player1") / 2 
-            player_1_y = 150
-            #----「player2」の表示
-            player_2_x = 510 - player_font.get_width("player1") / 2 
-            player_2_y = 150
-            #----「先攻」「後攻」の表示
-            fir_font = Font.new(50)
-            fir_x = 170 - fir_font.get_width("先攻") / 2 
-            bac_font = Font.new(50)
-            bac_x = 510 - bac_font.get_width("後攻") / 2 
-            fir_bac_x = [fir_x,bac_x]
-            fir_bac_y = 300
-            #先行と後攻を選択する際の表示
-                fir_bac_1 = 0
-                fir_bac_2 = 1
-                fir_bac_3 = 2
-            #先行と後攻を表示する場所を決める所
-                fir_bac_num = 0
-        #---ゲーム画面の表示---#
-            #各playerの四角形の縦辺のx座標
-            height_block_x = [20,220,320,360,560,660]
-            #「H」の表示
-                h_x = [240,580]
-            #plyayer1のHの値
-                #表示のため「-1」にする
-                p1_h = -1
-                p1_h_box = []
-            #plyayer2のHの値
-                #表示のため「-1」にする
-                p2_h = -1
-                p2_h_box = []
-            #「B」の表示
-                b_x = [285,630]
-            #plyayer1のBの値
-                #表示のため「-1」にする
-                p1_b = -1
-                p1_b_box = []
-            #plyayer2のBの値
-                #表示のため「-1」にする
-                p2_b = -1
-                p2_b_box = []
-            #「決定」・「削除」関係の値
-                #「決定」・「削除」のx座標とy座標
-                det_del_font = Font.new(30)
-                det_del_x = 615 - det_del_font.get_width("決定") / 2 + 10
-                det_del_y = [445,495]
-                #「決定」・「削除」を囲む四角形のx座標とy座標
-                det_del_box_x = det_del_x - 15
-                det_del_box_y_1 = det_del_y[0] - 10
-                det_del_box_y_2 = det_del_y[1] - 10
-                det_del_box_y = [det_del_box_y_1, det_del_box_y_2]
-                #「決定」・「削除」を囲む四角形の縦幅・横幅
-                det_del_box_width = det_font.get_width("決定") + 10
-                det_del_box_height = det_font.size + 10
-            #選択した数字のy座標を表す
-                answer_box_y = [55,105,155,205,255,305,355]
-                play_1_answer_box_x = [33,83,133,183]
-                play_2_answer_box_x = [373,423,473,523]
-            #画面下に表示している数字のx座標と選択した数字を代入する変数
-                cho_num_x = [10,100,190,280,370,460] 
-            #「player1」と「player2」の選択した値を代入する配列
-                play_1_box = []
-                play_2_box = []
-            #「player1」と「player2」の答えを代入する配列
-                play_1_answer_box = []
-                play_2_answer_box = []
-            #「player1」と「player2」の答えを表示する値を挿入する配列
-                play_1_showbox = []
-                play_2_showbox = []
-                answer_num_font = Font.new(45)
-            #「H」「B」の計算をするために利用する変数
-                blow_box = []
-            #削除の際に利用する変数
-                p1_del_num = 0
-                p1_sum_del_num = 0
-                p2_del_num = 0
-                p2_sum_del_num = 0
-        if re_num == 1
-            screen = 1
-        elsif re_num == 2
-            screen = 0
-        end  
-    end
-
 end #loop do のend
