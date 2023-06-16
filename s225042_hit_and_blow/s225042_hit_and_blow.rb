@@ -15,11 +15,7 @@ screen = 0
     # play
         play_font = Font.new(50)
         play_x = 340 - play_font.get_width("play") / 2
-        play_y = 250
-        play_box_x = play_x - 10
-        play_box_y = play_y - 10
-        play_box_width = play_font.get_width("play") + 20
-        play_box_height = play_font.size + 20
+        play_y = 270
     # how to play
         how_to_play_font = Font.new(50)
         how_to_play_x = 340 - how_to_play_font.get_width("how to play") / 2
@@ -28,6 +24,10 @@ screen = 0
         how_to_play_box_y = how_to_play_y - 10
         how_to_play_box_width = how_to_play_font.get_width("how to play") + 20
         how_to_play_box_height = how_to_play_font.size + 20
+    # end
+        end_font = Font.new(50)
+        end_x = 340 - end_font.get_width("end") / 2
+        end_y = 370
 #「数字」の選択画面の表示
     # ---「4つの数字を決めてください(重複あり。)」を表示---#
         dec_font = Font.new(40)
@@ -154,8 +154,6 @@ screen = 0
         re_num = 0
     # cpu_box = [rand(6)+1,rand(6)+1,rand(6)+1,rand(6)+1]
 
-
-
 #ゲーム画面の四角形の縦辺を表示するための関数
 def height_block(x)
     Window.draw_box_fill(x,50,x+5, 405, [255, 255, 255])
@@ -218,13 +216,13 @@ Window.loop do
         Window.draw_font(hit_and_blow_x, hit_and_blow_y, "hit&blow", hit_and_blow_font)
         # 「play」を表示
         Window.draw_box(how_to_play_box_x, play_y, how_to_play_box_x + how_to_play_box_width, play_y + how_to_play_box_height, [255, 255, 255])
-        Window.draw_font(play_x, play_y + 5, "play", play_font)
-        #「how to play」を表示
-        Window.draw_box(how_to_play_box_x, how_to_play_box_y, how_to_play_box_x + how_to_play_box_width, how_to_play_box_y + how_to_play_box_height, [255, 255, 255])
-        Window.draw_font(how_to_play_x, how_to_play_y, "how to play", how_to_play_font)
+        Window.draw_font(play_x, play_y + 5, "Play", play_font)
+         #「end」を表示
+         Window.draw_box(how_to_play_box_x, how_to_play_box_y, how_to_play_box_x + how_to_play_box_width, how_to_play_box_y + how_to_play_box_height, [255, 255, 255])
+         Window.draw_font(end_x, end_y, "End", end_font)
         #「play」を赤色にする
         if (Input.mouse_x >= how_to_play_box_x) && (Input.mouse_x <= how_to_play_box_x + how_to_play_box_width) && (Input.mouse_y >=play_y) && (Input.mouse_y <= play_y + how_to_play_box_height)
-            Window.draw_font(play_x, play_y + 5, "play", play_font,color: C_RED)
+            Window.draw_font(play_x, play_y + 5, "Play", play_font,color: C_RED)
             if (Input.mouse_push?(M_LBUTTON)) || (Input.mouse_push?(M_RBUTTON))
                 screen = 1
             end
@@ -457,7 +455,6 @@ Window.loop do
                             play_1_answer_box.delete_at(dec_num_2)
                             play_1_showbox.delete_at(p1_del_num + dec_num_2)
                             dec_num_1[dec_num_2] = -1
-                            printf("p1_del_num + dec_num_2 = %d \n",p1_del_num + dec_num_2)
                         end
                     elsif fir_bac_num == 1
                         if p2_sum_del_num > p2_del_num &&  p2_del_num <= p2_sum_del_num + 4
@@ -466,7 +463,6 @@ Window.loop do
                             play_2_answer_box.delete_at(dec_num_2)
                             play_2_showbox.delete_at(p2_del_num + dec_num_2)
                             dec_num_1[dec_num_2] = -1
-                            printf("p2_del_num + dec_num_2 = %d \n",p2_del_num + dec_num_2)
                         end
                     end 
                 end
@@ -489,27 +485,40 @@ Window.loop do
                     if (Input.mouse_push?(M_LBUTTON)) || (Input.mouse_push?(M_RBUTTON))
                         input_x = Input.mouse_x
                         dec_num_1[dec_num_2] = decide_number(input_x,cho_num_x)
-                        # printf("dec_num_1[dec_num_2] = %d\n", dec_num_1[dec_num_2])
-                        # printf("now_player_num = %d\n",now_player_num)
+
+                        if dec_num_2 == 1
+                            if dec_num_1[dec_num_2] == dec_num_1[dec_num_2-1]
+                                dec_num_1[dec_num_2] = -1
+                                next
+                            end    
+                        # 選んでいる数字とその前の数字の重複確認
+                        elsif dec_num_2 > 1
+                            for a in 0..(dec_num_2-1)
+                                if dec_num_1[dec_num_2] == dec_num_1[a]
+                                    x_4 = 1
+                                    break
+                                end    
+                            end
+                            if x_4 == 1
+                                x_4 = 0
+                                dec_num_1[dec_num_2] = -1
+                                next
+                            end
+                        end
                         if fir_bac_num == 0
                             play_1_answer_box.push(dec_num_1[dec_num_2])
                             play_1_showbox.push(dec_num_1[dec_num_2])
                             p1_sum_del_num += 1
-                            # printf("play_1_showbox = %d\n",play_1_showbox[dec_num_2])
                         elsif fir_bac_num == 1
                             play_2_answer_box.push(dec_num_1[dec_num_2])
                             play_2_showbox.push(dec_num_1[dec_num_2])
                             p2_sum_del_num += 1
-                            # printf("play_2_answer_box = %d\n",play_2_answer_box[dec_num_2])
-                            # printf("play_2_showbox = %d\n",play_2_showbox[dec_num_2])
                         end
                         dec_num_2 += 1
-                      
                     end
                 end
             end
         end
-
         #player1の数字の表示
             show_num(play_1_answer_box_x,answer_box_y,number,play_1_showbox,answer_num_font)
         #player2の数字の表示
@@ -518,8 +527,6 @@ Window.loop do
             show_H_B_num(h_x[0],b_x[0],answer_box_y,number,p1_h_box,p1_b_box,answer_num_font)
         #player2の「H」「B」の表示  
             show_H_B_num(h_x[1],b_x[1],answer_box_y,number,p2_h_box,p2_b_box,answer_num_font)
-
-        
         #「H」と「B」を計算する    
         if dec_num_1[3] >= 0 
             Window.draw_box(det_del_box_x, det_del_box_y[0] ,det_del_box_x + det_del_box_width, det_del_box_y[0] + det_del_box_height,[255, 212, 0])
@@ -530,137 +537,82 @@ Window.loop do
                         for a in 0..(play_1_answer_box.length-1)
                             if play_1_answer_box[a] == play_2_box[a]
                                 blow_box.push(a)
-                                # printf("\n")
-                                # printf("a = %d\n",a)
-                                # printf("blow_box[%d] = %d\n",p1_b,blow_box[p1_b])
-                                # printf("\n")
-                                # printf("Blow\n")
-                                # printf("play_1_answer_box[%d] = %d\n",a,play_1_answer_box[a])
-                                # printf("play_2_box[%d] = %d\n",a,play_2_box[a])
-                                # printf("\n")
                                 p1_b += 1
                             end
                         end
-
                         for a in 0..(play_1_answer_box.length-1)
                             for b in 0..(play_2_box.length-1)
                                 if blow_box.length > 0
                                     for c in blow_box
                                         if  a == c || b == c
                                             d = 1
-                                            # printf("a = %d | b = %d | c = %d\n",a,b,c)
                                             break
                                         end
                                     end
-
                                     if d == 1
                                         d = 0
                                         next
                                     end
-
-                                    # printf("a = %d | b = %d\n",a,b)
                                     if play_1_answer_box[a] == play_2_box[b]
-                                        # printf("HIT\n")
-                                        # printf("play_1_answer_box[%d] = %d\n",a,play_1_answer_box[a])
-                                        # printf("play_2_box[%d] = %d\n",b,play_2_box[b])
-                                        # printf("\n")
                                         p1_h += 1
                                     end
                                 end
                             end
                         end
-
                         for a in 0..(play_1_answer_box.length-1)
                             play_1_answer_box.pop
                         end
-                        # printf("\n")
-                        # printf("p1_b = %d\n",p1_b)
-                        # printf("p1_h = %d\n",p1_h)
-                        # printf("\n")
                         p1_b_box.push(p1_b)
                         p1_h_box.push(p1_h)
                         p1_b = -1
                         p1_h = -1
                         fir_bac_num = 1                    
-                        dec_num_1 = [-1,-1,-1,-1]
-                        dec_num_2 = 0
                         p1_del_num = p1_sum_del_num
-                        printf("p1_b_box[%d] = %d\n",p1_b_box.length-1,p1_b_box[p1_b_box.length-1])
-                        if blow_box.length == 1
-                            blow_box.pop
-                        elsif blow_box.length > 1
-                            for a in 0..(blow_box.length-1)
-                                blow_box.pop
-                            end
-                        end
                     elsif fir_bac_num == 1                        
                         for a in 0..(play_2_answer_box.length-1)
                             if play_2_answer_box[a] == play_1_box[a]
                                 blow_box.push(a)
-                                # printf("\n")
-                                # printf("a = %d\n",a)
-                                # printf("blow_box[%d] = %d\n",p2_b,blow_box[p2_b])
-                                # printf("\n")
-                                # printf("Blow\n")
-                                # printf("play_2_answer_box[%d] = %d\n",a,play_2_answer_box[a])
-                                # printf("play_1_box[%d] = %d\n",a,play_1_box[a])
-                                # printf("\n")
                                 p2_b += 1
                             end
                         end
-
                         for a in 0..(play_2_answer_box.length-1)
                             for b in 0..(play_1_box.length-1)
                                 if blow_box.length > 0
                                     for c in blow_box
                                         if  a == c || b == c
                                             d = 1
-                                            # printf("a = %d | b = %d | c = %d\n",a,b,c)
                                             break
                                         end
                                     end
-
                                     if d == 1
                                         d = 0
                                         next
                                     end
-
-                                    printf("a = %d | b = %d\n",a,b)
                                     if play_2_answer_box[a] == play_1_box[b]
-                                        # printf("HIT\n")
-                                        # printf("play_2_answer_box[%d] = %d\n",a,play_2_answer_box[a])
-                                        # printf("play_2_box[%d] = %d\n",b,play_2_box[b])
-                                        # printf("\n")
                                         p2_h += 1
                                     end
                                 end
                             end
                         end
-
                         for a in 0..(play_2_answer_box.length-1)
                             play_2_answer_box.pop
                         end
-                        # printf("\n")
-                        # printf("p2_b = %d\n",p2_b)
-                        # printf("p2_h = %d\n",p2_h)
-                        # printf("\n")
                         p2_b_box.push(p2_b)
                         p2_h_box.push(p2_h)
                         p2_b = -1
                         p2_h = -1
                         fir_bac_num = 0                    
-                        dec_num_1 = [-1,-1,-1,-1]
-                        dec_num_2 = 0
-                        printf("p2_b_box[%d] = %d\n",p2_b_box.length-1,p2_b_box[p2_b_box.length-1])
                         p2_del_num = p2_sum_del_num
-                        if blow_box.length == 1
-                            blow_box.pop
-                        elsif blow_box.length > 1
-                            for a in 0..(blow_box.length-1)
-                                blow_box.pop
-                            end
-                        end
                     end     #fir_bac_num == 1 の時のend とfir_bac_num == 0 の時のend 
+                    dec_num_1 = [-1,-1,-1,-1]
+                    dec_num_2 = 0
+                    if blow_box.length == 1
+                        blow_box.pop
+                    elsif blow_box.length > 1
+                        for a in 0..(blow_box.length-1)
+                            blow_box.pop
+                        end
+                    end
                 end
             end
         end
